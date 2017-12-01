@@ -27,9 +27,9 @@ outputs:
 
 
 Supports:
-* Asynchronous Testing
+* Asynchronous Testing (promise-based)
 * Node.js & Browsers (Node v8.5.0+ for `performance.now` compatibility)
 * Different Assertion Libraries (uses `JSON.stringify` by default for simple comparisons)
 * Running tests concurrently by default (or sequentially `Test.start({parallel:false})`)
 * Atomic Testing by default (or to maintain order `Test.start({shuffle:false})`)
-* Configuring default output `cherub.output=console.log`
+* Configurable output (default is `cherub.output=console.log`)
