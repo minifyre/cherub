@@ -35,11 +35,12 @@ Supports:
 * Running tests concurrently by default (or sequentially `Test.start({parallel:false})`)
 * Configurable output (default is `cherub.output=console.log`)
 * Configurable performance reporting (default is millisecond accuracy with `Date.now()`)
-  *     //microsecond accuracy
+
+      //microsecond accuracy
            
-        //Node.js only (compatible with 8.5.0+)
-        var performance=require('perf_hooks').performance
+      //Node.js only (compatible with 8.5.0+)
+      var performance=require('perf_hooks').performance
         
-        //browser/node.js
-        cherub.perf.now=()=>performance.now();
-        cherub.units='μs';
+      //browser/node.js
+      cherub.perf.now=()=>performance.now();
+      cherub.units='μs';
