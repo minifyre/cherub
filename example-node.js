@@ -1,6 +1,8 @@
 'use strict';
-var Test=typeof exports==='undefined'?cherub:require('../cherub.js'),
-	sum=(a,b)=>a+b,
+const Test=require('./cherub.js'),
+	  performance=require('perf_hooks').performance;
+Object.assign(Test.perf,{now:()=>performance.now(),units:'μs'});//upgrade timing to microseconds (Node v8.5.0+)
+var sum=(a,b)=>a+b,
 	mult=(a,b)=>a*b,
 	four=()=>4;
 Test('1.) Add 2 Numbers').func(sum).args(1,2).rtn(3);
