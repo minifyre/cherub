@@ -43,4 +43,3 @@ Supports:
         
       //browser/node.js
       cherub.perf.now=()=>performance.now();
-      cherub.perf.units='μs';

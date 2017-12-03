@@ -5,7 +5,7 @@ onload=function()
 {
 	'use strict';
 	const Test=cherub;
-	Object.assign(Test.perf,{now:()=>performance.now(),units:'μs'});//upgrade timing to microseconds (Chrome v33+ & FF v15+)
+	Test.perf.now=()=>performance.now();//upgrade timing to microseconds (Chrome v33+ & FF v15+)
 	var sum=(a,b)=>a+b,
 		mult=(a,b)=>a*b,
 		four=()=>4;

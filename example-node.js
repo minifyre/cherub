@@ -1,7 +1,7 @@
 'use strict';
 const Test=require('./cherub.js'),
 	  performance=require('perf_hooks').performance;
-Object.assign(Test.perf,{now:()=>performance.now(),units:'μs'});//upgrade timing to microseconds (Node v8.5.0+)
+Test.perf.now=()=>performance.now();//upgrade timing to microseconds (Node v8.5.0+)
 var sum=(a,b)=>a+b,
 	mult=(a,b)=>a*b,
 	four=()=>4;
