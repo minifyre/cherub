@@ -1,7 +1,7 @@
 # Cherub.js
 A tiny testing framework with zero dependencies to guard against regression.
 
-Cherub.js is designed to be lightweight (currently 88 lines) & make writing tests a faster/easier with a concise syntax.
+Cherub.js is designed to be lightweight (currently 90 lines) & make writing tests a faster/easier with a concise syntax.
 
 #### Example:
 
