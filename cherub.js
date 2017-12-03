@@ -51,7 +51,9 @@
 			return Promise.resolve().then(setup)
 			.then(()=>args?func(...args):func())
 			.then(res=>(assert(res,rtn)?pass:fail)(name,perf.now()-start,res,'!==',rtn))
-			.catch(err=>fail(err,'!==',rtn)).then(cleanup).catch(next);
+			.catch(err=>fail(name,perf.now()-start,err,'!==',rtn))
+			.then(cleanup)
+			.catch(next);
 		},
 		score:function(time)
 		{
