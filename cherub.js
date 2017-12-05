@@ -12,7 +12,7 @@
 	Object.assign(cherub,
 	{
 		assert:(res,ans)=>JSON.stringify(res)===JSON.stringify(ans),
-		defaults:{parallel:true,shuffle:true},
+		defaults:{hidePassed:true,parallel:true,shuffle:true},
 		handler:
 		{
 			get:function(obj,prop)
@@ -41,7 +41,10 @@
 		pass:function(test,time)
 		{
 			cherub.totals.passed+=1;
-			cherub.output(test+': passed'+cherub.perf.report(time));
+			if (cherub.hidePassed)
+			{
+				cherub.output(test+': passed'+cherub.perf.report(time));
+			}	
 		},
 		run:function(test)
 		{
@@ -77,7 +80,7 @@
 		totals:{failed:0,passed:0},
 		start:function(opts={})
 		{
-			var {defaults,next,perf,output,run,score,shuffle,tests}=cherub,
+			var {defaults,hidePassed,next,perf,output,run,score,shuffle,tests}=cherub,
 				start=perf.now();
 			opts=Object.assign(defaults,opts);
 			output('Start Testing ('+JSON.stringify(opts)+')');
