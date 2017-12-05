@@ -11,7 +11,7 @@
 		};
 	Object.assign(cherub,
 	{
-		assert:(res,ans)=>JSON.stringify(res)===JSON.stringify(ans),
+		assert:(actual,expected)=>JSON.stringify(actual)===JSON.stringify(expected),
 		defaults:{hidePassed:true,parallel:true,shuffle:true},
 		handler:
 		{
@@ -53,7 +53,7 @@
 				start=perf.now();
 			return Promise.resolve().then(setup)
 			.then(()=>args?func(...args):func())
-			.then(res=>(assert(res,rtn)?pass:fail)(name,perf.now()-start,res,'!==',rtn))
+			.then(actual=>(assert(actual,rtn)?pass:fail)(name,perf.now()-start,actual,'!==',rtn))
 			.catch(err=>fail(name,perf.now()-start,err,'!==',rtn))
 			.then(cleanup)
 			.catch(next);
