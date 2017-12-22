@@ -4,14 +4,24 @@
 	var [obj,prop]=args,
 		cherub=obj[prop]=function(name='Unamed Test')
 		{
-			var {assert,handler,next}=cherub,
-				obj={args:undefined,assert,cleanup:next,func:next,name,rtn:'',setup:next};
+			var {args,assert,cleanup,func,handler,setup}=cherub,
+				obj={args,assert,cleanup,func,name,rtn:'',setup};
 			cherub.tests.push(obj);
 			return new Proxy(obj,handler);
+		},
+		next=(...args)=>args,
+		assertions=
+		{
+			equal:(actual,expected)=>actual===expected,
+			stringify:(...args)=>assertions.equal(...args.map(JSON.stringify))
 		};
 	Object.assign(cherub,
 	{
-		assert:(actual,expected)=>JSON.stringify(actual)===JSON.stringify(expected),
+		args:undefined,
+		assert:assertions.stringify,
+		assertions,
+		assign:sources=>Object.assign(cherub,sources),
+		cleanup:next,
 		defaults:{hidePassed:true,parallel:true,shuffle:true},
 		handler:
 		{
@@ -29,8 +39,9 @@
 			cherub.totals.failed+=1;
 			cherub.output(name+': failed'+cherub.perf.report(time)+'\n',...msg);
 		},
+		func:next,
 		num2percent:num=>((num*100).toFixed('2')).replace(/\.00|0$/,'')+'%',
-		next:(...args)=>args,
+		next:next,
 		perf:
 		{
 			now:()=>Date.now(),
@@ -67,6 +78,7 @@
 			output(percentPassed+' Passed: '+passed+'/'+total+cherub.perf.report(time)+'\n');
 			cherub.totals={failed:0,passed:0};
 		},
+		setup:next,
 		shuffle:function(old)
 		{
 			return old.reduce(function(arr,item,i)
