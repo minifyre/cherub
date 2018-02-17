@@ -7,23 +7,20 @@ onload=function()
 	var sum=(a,b)=>a+b,
 	tests=
 	{
+		assert:(a,b)=>a===b,
 		name:'math',
-		opts:{hidePassed:false,parallel:false,shuffle:false},
 		tests:
-		{
+		[{
 			name:'sum',
 			func:sum,
 			notes:'add two numbers togther',
-			setup:arg=>arg,
-			cleanup:arg=>arg,
-			assert:(a,b)=>a===b,
 			tests:
 			[
 				{name:'positive',args:[1,5],rtn:6},
 				{name:'negative',args:[-1,-5],rtn:-6}
 			]
-		}
+		}]
 	};
-	cherub.run(tests);
+	cherub.run(tests);//opts:{hidePassed:false,parallel:false,shuffle:false},
 };
 </script>
