@@ -40,6 +40,7 @@
 	cherub.config=
 	{
 		hidePassed:true,
+		lang:'en',
 		output:console.log,
 		parallel:true,
 		perf:
@@ -72,7 +73,7 @@
 	cherub.num2percent=num=>((num*100).toFixed(2)).replace(/\.00|0$/,'')+'%';
 	cherub.run=function(test)///use rest parameters
 	{
-		var {build,config,shuffle}=cherub,
+		var {build,config,json2msg,shuffle}=cherub,
 			{output,parallel,perf}=config,
 			tests=build(test),
 			passed=0,
@@ -89,7 +90,7 @@
 			.then(obj=>Object.assign(obj,{name,notes,rtn,time:perf.now()-start}))//compile info
 			.then(function(obj)//report info
 			{
-				cherub.json2msg(obj);
+				json2msg(obj);
 				return passed+=obj.hasOwnProperty('err')?0:1;
 			})
 			.then(cleanup)
@@ -100,19 +101,19 @@
 		tests.reduce((promise,test)=>promise.then(()=>run(test)),Promise.resolve()))
 		.then(function()//score
 		{
-			var {num2percent,reportTime}=cherub,
+			var {json2msg,num2percent,reportTime}=cherub,
 				time=perf.now()-start,
 				total=tests.length,
 				failed=total-passed,//failed can be infered from totals & passed
 				percentPassed=total?num2percent(passed/total):0,
 				name=passed+'/'+total+' ('+percentPassed+')';
-			output('passed: '+name+' ('+reportTime(time)+')\n');
+			json2msg({name,time});
 		});
 	};
-	cherub.json2msg=function(json, lang='en')
+	cherub.json2msg=function(json)
 	{
 		var {err,name,rtn,time}=json,
-			{output,text}=cherub.config,
+			{lang,output,text}=cherub.config,
 			failed=json.hasOwnProperty('err'),
 			type=failed?'failed':'passed',
 			msg=name+' ('+cherub.reportTime(time)+') ';
