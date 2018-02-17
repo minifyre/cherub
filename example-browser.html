@@ -4,15 +4,26 @@
 onload=function()
 {
 	'use strict';
-	const Test=cherub;
-	Test.perf.now=()=>performance.now();//upgrade timing to microseconds (Chrome v33+ & FF v15+)
 	var sum=(a,b)=>a+b,
-		mult=(a,b)=>a*b,
-		four=()=>4;
-	Test('1.) Add 2 Numbers').func(sum).args(1,2).rtn(3);
-	Test('2.) Multiply 2 Numbers').func(mult).args(1,2).rtn(2);
-	Test('3.) Multiply By 0').func(mult).args(0,2).rtn(0);
-	Test('4.) Return 4').func(four).rtn(4);
-	Test.start();//{parallel:false,shuffle:false};
+	tests=
+	{
+		name:'math',
+		opts:{hidePassed:false,parallel:false,shuffle:false},
+		tests:
+		{
+			name:'sum',
+			func:sum,
+			notes:'add two numbers togther',
+			setup:arg=>arg,
+			cleanup:arg=>arg,
+			assert:(a,b)=>a===b,
+			tests:
+			[
+				{name:'positive',args:[1,5],rtn:6},
+				{name:'negative',args:[-1,-5],rtn:-6}
+			]
+		}
+	};
+	cherub.run(tests);
 };
 </script>
