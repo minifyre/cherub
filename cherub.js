@@ -49,10 +49,15 @@
 		perf:
 		{
 			now:()=>Date.now(),
-			report:time=>' (in '+time.toFixed(4)+cherub.config.perf.units+')',
+			precision:4,
 			units:'ms'
 		},
 		shuffle:true
+	};
+	cherub.reportTime=function(time)
+	{
+		var {precision,units}=cherub.config.perf;
+		return time.toFixed(precision)+units;
 	};
 	cherub.inherit=function(test,parent)
 	{
@@ -68,11 +73,16 @@
 	cherub.run=function(test)
 	{
 		var {build,config,fail,pass,shuffle}=cherub,
-			{perf}=config,
+			{parallel,perf}=config,
 			tests=build(test),
-			results={failed:0,passed:0};
+			passed=0;
 		tests=config.shuffle?shuffle(tests):tests;
-		console.log(tests);
+		
+		//return (opts.parallel?Promise.all(tests.map(run)):
+		//tests.reduce((promise,test)=>promise.then(()=>run(test)),Promise.resolve()))
+		//.then(()=>score(perf.now()-start));
+		
+		
 		//reduce with a total of passed tests, failed can be infered from totals
 		tests.forEach(function(test)
 		{
@@ -84,30 +94,23 @@
 			.then(val=>({func:assert(val,rtn)?pass:fail,val}))//eval tests
 			.catch(err=>({func:fail,val:err}))
 			.then(obj=>Object.assign(obj,{name,notes,time:perf.now()-start}))//compile info
-			.then(obj=>obj.func(obj))//report info
+			.then(obj=>passed+=obj.func(obj))//report info
 			.then(cleanup)
 			.catch(next);
 		});
 	};
-	
-	function start(opts={})///TEMP
-	{
-		cherub.config.output('Start Testing');
-		return (opts.parallel?Promise.all(tests.map(run)):
-		tests.reduce((promise,test)=>promise.then(()=>run(test)),Promise.resolve()))
-		.then(()=>score(perf.now()-start));
-	}
 	cherub.fail=function(obj)///merge with pass
 	{
 		var {output,perf}=cherub.config,
 			{name,time,val}=obj;
-		output(name+': failed'+perf.report(time)+val+'\n');
+		output(name+': failed ('+cherub.reportTime(time)+') '+val+'\n');
+		return 0;
 	};
 	cherub.pass=function(obj)
 	{
 		var {output,perf}=cherub.config,
 			{name,time}=obj;///if (cherub.config.hidePassed)
-		output(name+': passed'+perf.report(time));
+		output(name+': passed ('+cherub.reportTime(time)+')');
 		return 1;
 	};
 	
@@ -122,7 +125,6 @@
 	};
 	return cherub;
 })(typeof exports==='undefined'?[window,'cherub']:[module,'exports']);
-
 /*
 score:function(time)
 {
