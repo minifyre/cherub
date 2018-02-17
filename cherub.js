@@ -101,25 +101,25 @@
 		tests.reduce((promise,test)=>promise.then(()=>run(test)),Promise.resolve()))
 		.then(function()//score
 		{
-			var {json2msg,num2percent,reportTime}=cherub,
+			var {json2msg,num2percent}=cherub,
 				time=perf.now()-start,
 				total=tests.length,
 				failed=total-passed,//failed can be infered from totals & passed
 				percentPassed=total?num2percent(passed/total):0,
 				name=passed+'/'+total+' ('+percentPassed+')';
-			json2msg({name,time});
+			json2msg({name,time},true);
 		});
 	};
-	cherub.json2msg=function(json)
+	cherub.json2msg=function(json,show=false)
 	{
 		var {err,name,rtn,time}=json,
-			{lang,output,text}=cherub.config,
+			{hidePassed,lang,output,text}=cherub.config,
 			failed=json.hasOwnProperty('err'),
 			type=failed?'failed':'passed',
 			msg=name+' ('+cherub.reportTime(time)+') ';
 		msg=text[lang][type]+': '+msg;
 		msg=failed?msg+' '+err+'!='+rtn:msg;
-		output(msg+'\n');
+		(failed||!hidePassed||show)?output(msg+'\n'):'';
 	};
 	cherub.shuffle=function(old)
 	{
