@@ -28,51 +28,38 @@
 			return obj;
 		},obj);
 	};
+	cherub.build=function(test,inherits=defaults)
+	{
+		var tests=[];
+		test=cherub.inherit(test,inherits);
+		if (!test.tests.length&&test.func)//do not add containers meant to pass on functions
+		{
+			tests.push(test);
+		}
+		if (test.tests)
+		{
+			test.tests.forEach(function(subtest)
+			{
+				tests.push(...cherub.build(subtest,test));
+			});
+		}
+		return tests;
+	};
 	cherub.inherit=function(test,parent)
 	{
-		var {assert,cleanup,rtn,setup}=parent,
-			parentProps={assert,cleanup,rtn,setup},
+		var {assert,cleanup,func,rtn,setup}=parent,
+			parentProps={assert,cleanup,func,rtn,setup},
 			minProps={name:'',notes:'',tests:[]};
 		test=cherub.assign(test,minProps);
 		test=cherub.assign(test,parentProps);
 		test.name=(parent.name+'/'+test.name).replace(/^\//,'');//inherit parent's base name
 		return test;
 	};
-	cherub.build=function(test,inherits=defaults)
-	{
-		test=cherub.inherit(test,inherits);
-		console.log(test);
-		if (test.tests)
-		{
-			test.tests.forEach(function(subtest)
-			{
-				cherub.build(subtest,test);
-			});
-		}
-		/*//build name path
-		var tests=[];			
-		if (test.func)
-		{
-			tests.push(test);
-		}
-		if (test.tests)
-		{
-			test.tests.forEach(function(test)
-			{
-				console.log(test);
-			});
-		}
-		else
-		{
-			console.log(test);
-		}
-		return tests;*/
-	};
 	cherub.run=function(...tests)
 	{
 		tests.forEach(function(test)
 		{
-			cherub.build(test);
+			console.log(cherub.build(test));
 		});
 		/*return tests.reduce(function(results,test)
 		{
