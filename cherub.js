@@ -18,14 +18,37 @@
 			rtn:undefined,
 			setup:blank
 		};
+	cherub.inherit=function(test,parent)
+	{
+		if (!test.hasOwnProperty('name'))
+		{
+			test.name='';
+		}
+		if (parent.name.length)
+		{
+			test.name=parent.name+'/'+test.name;
+		}
+		/*
+		Notes- why this test
+		Func
+		Args
+		Rtn
+		Assert
+		Setup
+		Cleanup
+		tests
+		*/
+		return test;
+	};
 	cherub.build=function(test,inherits=defaults)
 	{
+		test=cherub.inherit(test,inherits);
 		console.log(test);
 		if (test.tests)
 		{
-			test.tests.forEach(function(test)
+			test.tests.forEach(function(subtest)
 			{
-				cherub.build(test,inherits);
+				cherub.build(subtest,test);
 			});
 		}
 		/*//build name path
