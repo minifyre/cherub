@@ -96,22 +96,23 @@
 				time=perf.now()-start,
 				total=tests.length,
 				failed=total-passed,//failed can be infered from totals & passed
-				percentPassed=total?num2percent(passed/total):0;
-			output(percentPassed+' Passed: '+passed+'/'+total+' '+reportTime(time)+'\n');
+				percentPassed=total?num2percent(passed/total):0,
+				name=passed+'/'+total+' ('+percentPassed+')';
+			output('passed: '+name+' ('+reportTime(time)+')\n');
 		});
 	};
 	cherub.fail=function(obj)///merge with pass
 	{
 		var {output,perf}=cherub.config,
 			{name,rtn,time,val}=obj;
-		output(name+': failed ('+cherub.reportTime(time)+') '+val+'!='+rtn+'\n');
+		output('failed: '+name+' ('+cherub.reportTime(time)+') '+val+'!='+rtn+'\n');
 		return 0;
 	};
 	cherub.pass=function(obj)
 	{
 		var {output,perf}=cherub.config,
 			{name,time}=obj;///if (cherub.config.hidePassed)
-		output(name+': passed ('+cherub.reportTime(time)+')');
+		output('passed: '+name+' ('+cherub.reportTime(time)+')');
 		return 1;
 	};
 	cherub.shuffle=function(old)
