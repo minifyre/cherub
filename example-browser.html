@@ -5,7 +5,7 @@ onload=function()
 {
 	'use strict';
 	var sum=(a,b)=>a+b,
-	tests=
+	test=
 	{
 		assert:(a,b)=>a===b,
 		name:'math',
@@ -13,7 +13,7 @@ onload=function()
 		[{
 			name:'sum',
 			func:sum,
-			notes:'add two numbers togther',
+			notes:'some helpful notes to display if test fails',
 			tests:
 			[
 				{name:'positive',args:[1,5],rtn:6},
@@ -21,6 +21,6 @@ onload=function()
 			]
 		}]
 	};
-	cherub.run(tests);//opts:{hidePassed:false,parallel:false,shuffle:false},
+	cherub.run(test);//opts:{hidePassed:false,parallel:false,shuffle:false},
 };
 </script>
