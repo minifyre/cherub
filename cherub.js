@@ -10,7 +10,6 @@
 		blank=args=>args,
 		defaults=
 		{
-			args:undefined,
 			assert:assertions.stringify,
 			cleanup:blank,
 			name:'',
@@ -18,26 +17,25 @@
 			rtn:undefined,
 			setup:blank
 		};
+	cherub.assign=function(obj,defaults)
+	{
+		return Object.keys(defaults).reduce(function(obj,prop)
+		{
+			if (!obj.hasOwnProperty(prop))
+			{
+				obj[prop]=defaults[prop];
+			}
+			return obj;
+		},obj);
+	};
 	cherub.inherit=function(test,parent)
 	{
-		if (!test.hasOwnProperty('name'))
-		{
-			test.name='';
-		}
-		if (parent.name.length)
-		{
-			test.name=parent.name+'/'+test.name;
-		}
-		/*
-		Notes- why this test
-		Func
-		Args
-		Rtn
-		Assert
-		Setup
-		Cleanup
-		tests
-		*/
+		var {assert,cleanup,rtn,setup}=parent,
+			parentProps={assert,cleanup,rtn,setup},
+			minProps={name:'',notes:'',tests:[]};
+		test=cherub.assign(test,minProps);
+		test=cherub.assign(test,parentProps);
+		test.name=(parent.name+'/'+test.name).replace(/^\//,'');//inherit parent's base name
 		return test;
 	};
 	cherub.build=function(test,inherits=defaults)
@@ -53,7 +51,6 @@
 		}
 		/*//build name path
 		var tests=[];			
-		test=Object.assign(defaults,test);
 		if (test.func)
 		{
 			tests.push(test);
