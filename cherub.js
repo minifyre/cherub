@@ -49,7 +49,7 @@
 		perf:
 		{
 			now:()=>Date.now(),
-			report:time=>' (in '+time.toFixed(4)+cherub.perf.units+')',
+			report:time=>' (in '+time.toFixed(4)+cherub.config.perf.units+')',
 			units:'ms'
 		},
 		shuffle:true
@@ -97,8 +97,19 @@
 		tests.reduce((promise,test)=>promise.then(()=>run(test)),Promise.resolve()))
 		.then(()=>score(perf.now()-start));
 	}
-	
-	
+	cherub.fail=function(obj)///merge with pass
+	{
+		var {output,perf}=cherub.config,
+			{name,time,val}=obj;
+		output(name+': failed'+perf.report(time)+val+'\n');
+	};
+	cherub.pass=function(obj)
+	{
+		var {output,perf}=cherub.config,
+			{name,time}=obj;///if (cherub.config.hidePassed)
+		output(name+': passed'+perf.report(time));
+		return 1;
+	};
 	
 	cherub.shuffle=function(old)
 	{
@@ -113,19 +124,6 @@
 })(typeof exports==='undefined'?[window,'cherub']:[module,'exports']);
 
 /*
-fail:function(obj)
-{
-	cherub.totals.failed+=1;
-	cherub.output(name+': failed'+cherub.perf.report(time)+'\n',...msg);
-}
-pass:function(obj)
-{
-	cherub.totals.passed+=1;
-	if (cherub.hidePassed)
-	{
-		cherub.output(test+': passed'+cherub.perf.report(time));
-	}
-}
 score:function(time)
 {
 	var {num2percent,output,totals}=cherub,
