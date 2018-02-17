@@ -2,8 +2,8 @@
 {
 	'use strict';
 	var [obj,prop]=args,
-		cherub=obj[prop]={};
-	var assertions=
+		cherub=obj[prop]={},
+		assertions=
 		{
 			equal:(actual,expected)=>actual===expected,
 			stringify:(...args)=>assertions.equal(...args.map(JSON.stringify))
@@ -13,8 +13,7 @@
 		{
 			assert:assertions.stringify,
 			cleanup:next,
-			name:'',//is this necessary if it is a minimal prop?
-			notes:'',//is this necessary if it is a minimal prop?
+			name:'',
 			rtn:undefined,
 			setup:next
 		};
@@ -22,10 +21,7 @@
 	{
 		return Object.keys(defaults).reduce(function(obj,prop)
 		{
-			if (!obj.hasOwnProperty(prop))
-			{
-				obj[prop]=defaults[prop];
-			}
+			!obj.hasOwnProperty(prop)?obj[prop]=defaults[prop]:'';
 			return obj;
 		},obj);
 	};
@@ -33,7 +29,7 @@
 	{
 		var tests=[];
 		test=cherub.inherit(test,inherits);
-		//do not add containers meant to pass on functions
+		//don't add containers meant to pass on functions
 		!test.tests.length&&test.func?tests.push(test):
 		test.tests.forEach(function(subtest)//containers have tests or an empty array
 		{
@@ -69,22 +65,15 @@
 		test.name=(parent.name+'/'+test.name).replace(/^\//,'');//inherit parent's base name
 		return test;
 	};
-	cherub.num2percent=num=>((num*100).toFixed('2')).replace(/\.00|0$/,'')+'%';
-	cherub.run=function(test)
+	cherub.num2percent=num=>((num*100).toFixed(2)).replace(/\.00|0$/,'')+'%';
+	cherub.run=function(test)///use rest parameters
 	{
 		var {build,config,fail,pass,shuffle}=cherub,
-			{parallel,perf}=config,
+			{output,parallel,perf}=config,
 			tests=build(test),
-			passed=0;
-		tests=config.shuffle?shuffle(tests):tests;
-		
-		//return (opts.parallel?Promise.all(tests.map(run)):
-		//tests.reduce((promise,test)=>promise.then(()=>run(test)),Promise.resolve()))
-		//.then(()=>score(perf.now()-start));
-		
-		
-		//reduce with a total of passed tests, failed can be infered from totals
-		tests.forEach(function(test)
+			passed=0,
+			start=perf.now();
+		var run=function(test)
 		{
 			var {args,assert,cleanup,func,name,notes,rtn,setup}=test,
 				start=perf.now();
@@ -93,17 +82,29 @@
 			.then(()=>args?func(...args):func())//run tests
 			.then(val=>({func:assert(val,rtn)?pass:fail,val}))//eval tests
 			.catch(err=>({func:fail,val:err}))
-			.then(obj=>Object.assign(obj,{name,notes,time:perf.now()-start}))//compile info
+			.then(obj=>Object.assign(obj,{name,notes,rtn,time:perf.now()-start}))//compile info
 			.then(obj=>passed+=obj.func(obj))//report info
 			.then(cleanup)
 			.catch(next);
+		};
+		tests=config.shuffle?shuffle(tests):tests;
+		return (parallel?Promise.all(tests.map(run)):
+		tests.reduce((promise,test)=>promise.then(()=>run(test)),Promise.resolve()))
+		.then(function()//score
+		{
+			var {num2percent,reportTime}=cherub,
+				time=perf.now()-start,
+				total=tests.length,
+				failed=total-passed,//failed can be infered from totals & passed
+				percentPassed=total?num2percent(passed/total):0;
+			output(percentPassed+' Passed: '+passed+'/'+total+' '+reportTime(time)+'\n');
 		});
 	};
 	cherub.fail=function(obj)///merge with pass
 	{
 		var {output,perf}=cherub.config,
-			{name,time,val}=obj;
-		output(name+': failed ('+cherub.reportTime(time)+') '+val+'\n');
+			{name,rtn,time,val}=obj;
+		output(name+': failed ('+cherub.reportTime(time)+') '+val+'!='+rtn+'\n');
 		return 0;
 	};
 	cherub.pass=function(obj)
@@ -113,7 +114,6 @@
 		output(name+': passed ('+cherub.reportTime(time)+')');
 		return 1;
 	};
-	
 	cherub.shuffle=function(old)
 	{
 		return old.reduce(function(arr,item,i)
@@ -125,14 +125,3 @@
 	};
 	return cherub;
 })(typeof exports==='undefined'?[window,'cherub']:[module,'exports']);
-/*
-score:function(time)
-{
-	var {num2percent,output,totals}=cherub,
-		{failed,passed}=totals,
-		total=failed+passed,
-		percentPassed=total?num2percent(passed/total):0;
-	output(percentPassed+' Passed: '+passed+'/'+total+cherub.perf.report(time)+'\n');
-	cherub.totals={failed:0,passed:0};
-}
-*/

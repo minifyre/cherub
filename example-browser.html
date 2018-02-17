@@ -4,8 +4,8 @@
 onload=function()
 {
 	'use strict';
-	var sum=(a,b)=>a+b,
-	test=
+	var sum=(a,b)=>a+b;
+	cherub.run(
 	{
 		assert:(a,b)=>a===b,
 		name:'math',
@@ -17,10 +17,10 @@ onload=function()
 			tests:
 			[
 				{name:'positive',args:[1,5],rtn:6},
-				{name:'negative',args:[-1,-5],rtn:-6}
+				{name:'negative',args:[-1,-5],rtn:-6},
+				{name:'fail',args:[-1,-5],rtn:0}
 			]
 		}]
-	};
-	cherub.run(test);//opts:{hidePassed:false,parallel:false,shuffle:false},
+	});//opts:{hidePassed:false,parallel:false,shuffle:false}
 };
 </script>
