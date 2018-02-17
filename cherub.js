@@ -64,7 +64,7 @@
 	{
 		var {assert,cleanup,func,rtn,setup}=parent,
 			parentProps={assert,cleanup,func,rtn,setup},
-			minProps={name:'',notes:'',tests:[]};
+			minProps={name:'',tests:[]};
 		test=cherub.assign(test,minProps);
 		test=cherub.assign(test,parentProps);
 		test.name=(parent.name+'/'+test.name).replace(/^\//,'');//inherit parent's base name
@@ -80,17 +80,17 @@
 			start=perf.now();
 		var run=function(test)
 		{
-			var {args,assert,cleanup,func,name,notes,rtn,setup}=test,
+			var {args,assert,cleanup,func,name,rtn,setup}=test,
 				start=perf.now();
 			return Promise.resolve()
 			.then(setup)
 			.then(()=>args?func(...args):func())//run tests
 			.then(val=>(assert(val,rtn)?{val}:{err:val}))//eval tests
 			.catch(err=>({err}))
-			.then(obj=>Object.assign(obj,{name,notes,rtn,time:perf.now()-start}))//compile info
 			.then(function(obj)//report info
 			{
-				json2msg(obj);
+				var time=perf.now()-start;
+				json2msg(Object.assign(obj,{name,rtn,time}));
 				return passed+=obj.hasOwnProperty('err')?0:1;
 			})
 			.then(cleanup)
