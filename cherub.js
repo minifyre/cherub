@@ -48,7 +48,11 @@
 			precision:4,
 			units:'ms'
 		},
-		shuffle:true
+		shuffle:true,
+		text:
+		{
+			en:{passed:'passed',failed:'failed'}
+		}
 	};
 	cherub.reportTime=function(time)
 	{
@@ -68,7 +72,7 @@
 	cherub.num2percent=num=>((num*100).toFixed(2)).replace(/\.00|0$/,'')+'%';
 	cherub.run=function(test)///use rest parameters
 	{
-		var {build,config,fail,pass,shuffle}=cherub,
+		var {build,config,shuffle}=cherub,
 			{output,parallel,perf}=config,
 			tests=build(test),
 			passed=0,
@@ -80,10 +84,14 @@
 			return Promise.resolve()
 			.then(setup)
 			.then(()=>args?func(...args):func())//run tests
-			.then(val=>({func:assert(val,rtn)?pass:fail,val}))//eval tests
-			.catch(err=>({func:fail,val:err}))
+			.then(val=>(assert(val,rtn)?{val}:{err:val}))//eval tests
+			.catch(err=>({err}))
 			.then(obj=>Object.assign(obj,{name,notes,rtn,time:perf.now()-start}))//compile info
-			.then(obj=>passed+=obj.func(obj))//report info
+			.then(function(obj)//report info
+			{
+				cherub.json2msg(obj);
+				return passed+=obj.hasOwnProperty('err')?0:1;
+			})
 			.then(cleanup)
 			.catch(next);
 		};
@@ -101,19 +109,16 @@
 			output('passed: '+name+' ('+reportTime(time)+')\n');
 		});
 	};
-	cherub.fail=function(obj)///merge with pass
+	cherub.json2msg=function(json, lang='en')
 	{
-		var {output,perf}=cherub.config,
-			{name,rtn,time,val}=obj;
-		output('failed: '+name+' ('+cherub.reportTime(time)+') '+val+'!='+rtn+'\n');
-		return 0;
-	};
-	cherub.pass=function(obj)
-	{
-		var {output,perf}=cherub.config,
-			{name,time}=obj;///if (cherub.config.hidePassed)
-		output('passed: '+name+' ('+cherub.reportTime(time)+')');
-		return 1;
+		var {err,name,rtn,time}=json,
+			{output,text}=cherub.config,
+			failed=json.hasOwnProperty('err'),
+			type=failed?'failed':'passed',
+			msg=name+' ('+cherub.reportTime(time)+') ';
+		msg=text[lang][type]+': '+msg;
+		msg=failed?msg+' '+err+'!='+rtn:msg;
+		output(msg+'\n');
 	};
 	cherub.shuffle=function(old)
 	{
