@@ -2,7 +2,9 @@
 {
 	'use strict';
 	var [obj,prop]=args,
-		cherub=obj[prop]={},
+		cherub=obj[prop]=function()
+		{
+		},
 		assertions=
 		{
 			equal:(actual,expected)=>actual===expected,
@@ -39,25 +41,19 @@
 	};
 	cherub.config=
 	{
+		failed:'failed',
 		hidePassed:true,
-		lang:'en',
+		now:()=>Date.now(),
 		output:console.log,
+		passed:'passed',
 		parallel:true,
-		perf:
-		{
-			now:()=>Date.now(),
-			precision:4,
-			units:'ms'
-		},
+		precision:4,
 		shuffle:true,
-		text:
-		{
-			en:{passed:'passed',failed:'failed'}
-		}
+		units:'ms'
 	};
 	cherub.reportTime=function(time)
 	{
-		var {precision,units}=cherub.config.perf;
+		var {precision,units}=cherub.config;
 		return time.toFixed(precision)+units;
 	};
 	cherub.inherit=function(test,parent)
@@ -74,14 +70,14 @@
 	cherub.run=function(test)///use rest parameters
 	{
 		var {build,config,json2msg,shuffle}=cherub,
-			{output,parallel,perf}=config,
+			{output,parallel,now}=config,
 			tests=build(test),
 			passed=0,
-			start=perf.now();
+			start=now();
 		var run=function(test)
 		{
 			var {args,assert,cleanup,func,name,rtn,setup}=test,
-				start=perf.now();
+				start=now();
 			return Promise.resolve()
 			.then(setup)
 			.then(()=>args?func(...args):func())//run tests
@@ -89,7 +85,7 @@
 			.catch(err=>({err}))
 			.then(function(obj)//report info
 			{
-				var time=perf.now()-start;
+				var time=now()-start;
 				json2msg(Object.assign(obj,{name,rtn,time}));
 				return passed+=obj.hasOwnProperty('err')?0:1;
 			})
@@ -102,7 +98,7 @@
 		.then(function()//score
 		{
 			var {json2msg,num2percent}=cherub,
-				time=perf.now()-start,
+				time=now()-start,
 				total=tests.length,
 				failed=total-passed,//failed can be infered from totals & passed
 				percentPassed=total?num2percent(passed/total):0,
@@ -113,11 +109,11 @@
 	cherub.json2msg=function(json,show=false)
 	{
 		var {err,name,rtn,time}=json,
-			{hidePassed,lang,output,text}=cherub.config,
+			{hidePassed,output}=cherub.config,
 			failed=json.hasOwnProperty('err'),
 			type=failed?'failed':'passed',
 			msg=name+' ('+cherub.reportTime(time)+') ';
-		msg=text[lang][type]+': '+msg;
+		msg=cherub.config[type]+': '+msg;
 		msg=failed?msg+' '+err+'!='+rtn:msg;
 		(failed||!hidePassed||show)?output(msg+'\n'):'';
 	};
