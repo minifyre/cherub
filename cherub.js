@@ -71,14 +71,30 @@ logic.shuffle=function(old)
 		return arr;
 	},old.slice(0));
 };
-output.msg=function(json,show=false)
+output.report=function(json,show=false)
 {
 	var msg=logic.json2msg(json),
 		failed=json.hasOwnProperty('err'),
 		{hidePassed,report}=config;
 	(failed||!hidePassed||show)?report(msg+'\n'):'';
+	return failed?0:1;
 };
-
+output.runTest=function(test)
+{
+	var {args,assert,cleanup,func,name,rtn,setup}=test,
+		{report}=output,
+		{now}=config,
+		start=now();
+	return Promise.resolve()
+	.then(setup)
+	.then(()=>args?func(...args):func())//run tests
+	.then(val=>(assert(val,rtn)?{val}:{err:val}))//eval tests
+	.catch(err=>({err}))
+	.then(obj=>Object.assign(obj,{name,rtn,time:now()-start}))//compile info
+	.then(report)
+	.then(cleanup)
+	.catch(logic.next);
+};
 
 
 
@@ -90,8 +106,11 @@ output.msg=function(json,show=false)
 
 var cherub=function(opts)
 {
-	config=Object.assign(config,opts);
-	return cherub;
+	return (function()
+	{
+		config=Object.assign(config,opts);
+		return {run:cherub.run};
+	})();
 },
 defaults=
 {
@@ -103,41 +122,34 @@ defaults=
 };
 cherub.run=function(...testTrees)
 {
-	var {buildTests}=logic,
+	var {buildTests,shuffle}=logic,
+		{runTest}=output,
 		{now,parallel,report}=config,
-		passed=0,
 		tests=buildTests(testTrees),
-		run=function(test)
-		{
-			var {args,assert,cleanup,func,name,rtn,setup}=test,
-				start=now();
-			return Promise.resolve()
-			.then(setup)
-			.then(()=>args?func(...args):func())//run tests
-			.then(val=>(assert(val,rtn)?{val}:{err:val}))//eval tests
-			.catch(err=>({err}))
-			.then(function(obj)//report info
-			{
-				var time=now()-start;
-				output.msg(Object.assign(obj,{name,rtn,time}));
-				return passed+=obj.hasOwnProperty('err')?0:1;
-			})
-			.then(cleanup)
-			.catch(logic.next);
-		},
 		start=now();
-	tests=config.shuffle?logic.shuffle(tests):tests;
-	return (parallel?Promise.all(tests.map(run)):
-	tests.reduce((promise,test)=>promise.then(()=>run(test)),Promise.resolve()))
-	.then(function()//score
+	tests=config.shuffle?shuffle(tests):tests;
+	return (parallel?Promise.all(tests.map(runTest)):
+	(function(sum=[])
 	{
-		var {num2percent}=logic,
-			time=now()-start,
-			total=tests.length,
-			failed=total-passed,//failed can be infered from totals & passed
+		return tests.reduce(function(promise,test)
+		{
+			return promise.then(function(num)
+			{
+				sum.push(num);
+				return runTest(test);
+			});
+		},Promise.resolve())
+		.then(num=>sum.splice(1).concat(num));//take extra item off the front
+	})())
+	.then(function(results)//report tests
+	{
+		var time=now()-start,
+			passed=results.reduce((sum,num)=>sum+=num,0),
+			total=results.length,
+			{num2percent}=logic,
 			percentPassed=total?num2percent(passed/total):0,
 			name=passed+'/'+total+' ('+percentPassed+')';
-		output.msg({name,time},true);
+		output.report({name,time},true);
 	});
 };
 export {cherub};
