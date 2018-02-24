@@ -1,12 +1,28 @@
 'use strict';
-const Test=require('./cherub.js'),
-	  performance=require('perf_hooks').performance;
-Test.perf.now=()=>performance.now();//upgrade timing to microseconds (Node v8.5.0+)
+import {cherub} from './cherub.js';
+/*THIS EXAMPLE ONLY WORKS IF THIS FILE AND CHERUB HAVE .MJS EXTENSIONS*/
+//const performance=require('perf_hooks').performance;
+
 var sum=(a,b)=>a+b,
-	mult=(a,b)=>a*b,
-	four=()=>4;
-Test('1.) Add 2 Numbers').func(sum).args(1,2).rtn(3);
-Test('2.) Multiply 2 Numbers').func(mult).args(1,2).rtn(2);
-Test('3.) Multiply By 0').func(mult).args(0,2).rtn(0);
-Test('4.) Return 4').func(four).rtn(4);
-Test.start();//{parallel:false,shuffle:false};
+	//config={now:()=>performance.now()},//upgrade timing to microseconds (Node v8.5.0+)
+	tests=[{
+		name:'math',
+		tests:
+		[{
+				name:'sum',
+				func:sum,
+				tests:
+				[
+					{name:'positive (test 1)',args:[1,5],rtn:6},
+					{name:'negative (test 2)',args:[-1,-5],rtn:-6},
+					{name:'fail (test 3)',args:[-1,-5],rtn:0}
+				]
+			}]
+		},
+		{
+			func:()=>0,
+			name:'return 0 (test 4)',
+			rtn:0
+		}];
+
+cherub().run(...tests);
