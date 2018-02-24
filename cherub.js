@@ -7,10 +7,10 @@ var input={},
 		failed:'failed',
 		hidePassed:true,
 		now:()=>Date.now(),
-		output:console.log,
 		passed:'passed',
 		parallel:true,
 		precision:4,
+		report:console.log,
 		shuffle:true,
 		units:'ms'
 	};
@@ -46,6 +46,15 @@ logic.inherit=function(test,parent)
 	test.name=(parent.name+'/'+test.name).replace(/^\//,'');//prepend parent's name
 	return test;
 };
+logic.json2msg=function(json)
+{
+	var {err,name,rtn,time}=json,
+		failed=json.hasOwnProperty('err'),
+		type=failed?'failed':'passed',
+		msg=name+' ('+logic.num2timeStr(time)+') ';
+	msg=config[type]+': '+msg;
+	return failed?msg+' '+err+'!='+rtn:msg;
+};
 logic.next=arg=>arg;
 logic.num2percent=num=>((num*100).toFixed(2)).replace(/\.00|0$/,'')+'%';
 logic.num2timeStr=function(time)
@@ -62,7 +71,13 @@ logic.shuffle=function(old)
 		return arr;
 	},old.slice(0));
 };
-
+output.msg=function(json,show=false)
+{
+	var msg=logic.json2msg(json),
+		failed=json.hasOwnProperty('err'),
+		{hidePassed,report}=config;
+	(failed||!hidePassed||show)?report(msg+'\n'):'';
+};
 
 
 
@@ -86,23 +101,10 @@ defaults=
 	rtn:undefined,
 	setup:logic.next
 };
-cherub.json2msg=function(json,show=false)
-{
-	var {err,name,rtn,time}=json,
-		{hidePassed,output}=config,
-		failed=json.hasOwnProperty('err'),
-		type=failed?'failed':'passed',
-		msg=name+' ('+logic.num2timeStr(time)+') ';
-	msg=config[type]+': '+msg;
-	msg=failed?msg+' '+err+'!='+rtn:msg;
-	(failed||!hidePassed||show)?output(msg+'\n'):'';
-};
-
 cherub.run=function(...testTrees)
 {
 	var {buildTests}=logic,
-		{json2msg}=cherub,
-		{output,parallel,now}=config,
+		{now,parallel,report}=config,
 		passed=0,
 		tests=buildTests(testTrees),
 		run=function(test)
@@ -117,7 +119,7 @@ cherub.run=function(...testTrees)
 			.then(function(obj)//report info
 			{
 				var time=now()-start;
-				json2msg(Object.assign(obj,{name,rtn,time}));
+				output.msg(Object.assign(obj,{name,rtn,time}));
 				return passed+=obj.hasOwnProperty('err')?0:1;
 			})
 			.then(cleanup)
@@ -130,13 +132,12 @@ cherub.run=function(...testTrees)
 	.then(function()//score
 	{
 		var {num2percent}=logic,
-			{json2msg}=cherub,
 			time=now()-start,
 			total=tests.length,
 			failed=total-passed,//failed can be infered from totals & passed
 			percentPassed=total?num2percent(passed/total):0,
 			name=passed+'/'+total+' ('+percentPassed+')';
-		json2msg({name,time},true);
+		output.msg({name,time},true);
 	});
 };
 export {cherub};
