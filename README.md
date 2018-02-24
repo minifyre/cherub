@@ -52,4 +52,4 @@ Supports:
       var performance=require('perf_hooks').performance
         
       //browser/node.js
-      cherub({perf.now:()=>performance.now()})
+      cherub({now:()=>performance.now()})
