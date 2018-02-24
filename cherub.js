@@ -75,12 +75,16 @@
 		var {precision,units}=config;
 		return time.toFixed(precision)+units;
 	};
-	cherub.run=function(test)///use rest parameters
+	cherub.run=function(...testTrees)
 	{
 		var {build,json2msg,shuffle}=cherub,
 			{output,parallel,now}=config,
-			tests=build(test),
 			passed=0,
+			tests=testTrees.reduce(function(tests, test)
+			{
+				tests.push(...build(test));
+				return tests;
+			},[]),
 			start=now();
 		var run=function(test)
 		{
