@@ -6,35 +6,35 @@ Cherub.js is designed to be lightweight & make writing tests a faster/easier wit
 #### Example:
         
     //setup
-	var sum=(a,b)=>a+b;
-	cherub({hidePassed:false})//config
-	.run(
-	{
-		name:'math',
-		tests:
-		[{
-			name:'sum',
-			func:sum,
-			tests:
-			[
-				{name:'positive (test 1)',args:[1,5],rtn:6},
-				{name:'negative (test 2)',args:[-1,-5],rtn:-6},
-				{name:'fail (test 3)',args:[-1,-5],rtn:0}
-			]
-		}]
-	},
-	{
-		func:()=>0,
-		name:'return 0 (test 4)',
-		rtn:0
-	});
+    var sum=(a,b)=>a+b;
+    cherub({hidePassed:false})//config
+    .run(
+    {
+        name:'math',
+        tests:
+        [{
+            name:'sum',
+            func:sum,
+            tests:
+            [
+                {name:'positive (test 1)',args:[1,5],rtn:6},
+                {name:'negative (test 2)',args:[-1,-5],rtn:-6},
+                {name:'fail (test 3)',args:[-1,-5],rtn:0}
+            ]
+        }]
+    },
+    {
+        func:()=>0,
+        name:'return 0 (test 4)',
+        rtn:0
+    });
         
     //output
-	passed: math/sum/positive (test 1) (1.0000ms)
-	passed: return 0 (test 4) (4.0000ms)
-	failed: math/sum/fail (test 3) (5.0000ms)  -6!=0
-	passed: math/sum/negative (test 2) (5.0000ms)
-	passed: 3/4 (75%) (5.0000ms)
+    passed: math/sum/positive (test 1) (1.0000ms)
+    passed: return 0 (test 4) (4.0000ms)
+    failed: math/sum/fail (test 3) (5.0000ms)  -6!=0
+    passed: math/sum/negative (test 2) (5.0000ms)
+    passed: 3/4 (75%) (5.0000ms)
 
 Supports:
 
