@@ -36,17 +36,19 @@
 			return obj;
 		},obj);
 	};
-	cherub.build=function(test,inherits=defaults)
+	cherub.buildTest=function(test,inherits=defaults)
 	{
-		var tests=[];
 		test=cherub.inherit(test,inherits);
-		//don't add containers meant to pass on functions
-		!test.tests.length&&test.func?tests.push(test):
-		test.tests.forEach(function(subtest)//containers have tests or an empty array
+		var {tests}=test,
+			isNotContainer=!tests.length&&test.func;
+		return isNotContainer?[test]:cherub.buildTests(tests,test);
+	};
+	cherub.buildTests=function(children,parent)
+	{
+		return children.reduce(function(tests,test)
 		{
-			tests.push(...cherub.build(subtest,test));
-		});
-		return tests;
+			return tests.concat(...cherub.buildTest(test,parent));
+		},[]);
 	};
 	cherub.inherit=function(test,parent)
 	{
@@ -55,7 +57,7 @@
 			minProps={name:'',tests:[]};
 		test=cherub.assign(test,minProps);
 		test=cherub.assign(test,parentProps);
-		test.name=(parent.name+'/'+test.name).replace(/^\//,'');//inherit parent's base name
+		test.name=(parent.name+'/'+test.name).replace(/^\//,'');//prepend parent's name
 		return test;
 	};
 	cherub.json2msg=function(json,show=false)
@@ -77,33 +79,29 @@
 	};
 	cherub.run=function(...testTrees)
 	{
-		var {build,json2msg,shuffle}=cherub,
+		var {buildTests,json2msg,shuffle}=cherub,
 			{output,parallel,now}=config,
 			passed=0,
-			tests=testTrees.reduce(function(tests, test)
+			tests=buildTests(testTrees),
+			run=function(test)
 			{
-				tests.push(...build(test));
-				return tests;
-			},[]),
+				var {args,assert,cleanup,func,name,rtn,setup}=test,
+					start=now();
+				return Promise.resolve()
+				.then(setup)
+				.then(()=>args?func(...args):func())//run tests
+				.then(val=>(assert(val,rtn)?{val}:{err:val}))//eval tests
+				.catch(err=>({err}))
+				.then(function(obj)//report info
+				{
+					var time=now()-start;
+					json2msg(Object.assign(obj,{name,rtn,time}));
+					return passed+=obj.hasOwnProperty('err')?0:1;
+				})
+				.then(cleanup)
+				.catch(next);
+			},
 			start=now();
-		var run=function(test)
-		{
-			var {args,assert,cleanup,func,name,rtn,setup}=test,
-				start=now();
-			return Promise.resolve()
-			.then(setup)
-			.then(()=>args?func(...args):func())//run tests
-			.then(val=>(assert(val,rtn)?{val}:{err:val}))//eval tests
-			.catch(err=>({err}))
-			.then(function(obj)//report info
-			{
-				var time=now()-start;
-				json2msg(Object.assign(obj,{name,rtn,time}));
-				return passed+=obj.hasOwnProperty('err')?0:1;
-			})
-			.then(cleanup)
-			.catch(next);
-		};
 		tests=config.shuffle?shuffle(tests):tests;
 		return (parallel?Promise.all(tests.map(run)):
 		tests.reduce((promise,test)=>promise.then(()=>run(test)),Promise.resolve()))
