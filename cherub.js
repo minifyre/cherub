@@ -2,8 +2,22 @@
 {
 	'use strict';
 	var [obj,prop]=args,
-		cherub=obj[prop]=function()
+		config=
 		{
+			failed:'failed',
+			hidePassed:true,
+			now:()=>Date.now(),
+			output:console.log,
+			passed:'passed',
+			parallel:true,
+			precision:4,
+			shuffle:true,
+			units:'ms'
+		},
+		cherub=obj[prop]=function(opts)
+		{
+			config=Object.assign(config,opts);
+			return cherub;
 		},
 		assertions=
 		{
@@ -38,22 +52,10 @@
 			tests.push(...cherub.build(subtest,test));
 		});
 		return tests;
-	};
-	cherub.config=
-	{
-		failed:'failed',
-		hidePassed:true,
-		now:()=>Date.now(),
-		output:console.log,
-		passed:'passed',
-		parallel:true,
-		precision:4,
-		shuffle:true,
-		units:'ms'
-	};
+	};	
 	cherub.reportTime=function(time)
 	{
-		var {precision,units}=cherub.config;
+		var {precision,units}=config;
 		return time.toFixed(precision)+units;
 	};
 	cherub.inherit=function(test,parent)
@@ -69,7 +71,7 @@
 	cherub.num2percent=num=>((num*100).toFixed(2)).replace(/\.00|0$/,'')+'%';
 	cherub.run=function(test)///use rest parameters
 	{
-		var {build,config,json2msg,shuffle}=cherub,
+		var {build,json2msg,shuffle}=cherub,
 			{output,parallel,now}=config,
 			tests=build(test),
 			passed=0,
@@ -109,11 +111,11 @@
 	cherub.json2msg=function(json,show=false)
 	{
 		var {err,name,rtn,time}=json,
-			{hidePassed,output}=cherub.config,
+			{hidePassed,output}=config,
 			failed=json.hasOwnProperty('err'),
 			type=failed?'failed':'passed',
 			msg=name+' ('+cherub.reportTime(time)+') ';
-		msg=cherub.config[type]+': '+msg;
+		msg=config[type]+': '+msg;
 		msg=failed?msg+' '+err+'!='+rtn:msg;
 		(failed||!hidePassed||show)?output(msg+'\n'):'';
 	};
