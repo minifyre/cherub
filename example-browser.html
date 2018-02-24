@@ -27,7 +27,7 @@ onload=function()
 	cherub({hidePassed:false,parallel:false}).run(...tests)
 	.then(function()
 	{
-		console.log('\n');//JSON.stringify(tests,null,4));
+		console.log('\n');
 		cherub().run(...tests);
 	});
 };
