@@ -5,7 +5,8 @@ onload=function()
 {
 	'use strict';
 	var sum=(a,b)=>a+b;
-	cherub.run(
+	cherub({hidePassed:false})
+	.run(
 	{
 		name:'math',
 		tests:
@@ -14,15 +15,16 @@ onload=function()
 			func:sum,
 			tests:
 			[
-				{name:'positive',args:[1,5],rtn:6},
-				{name:'negative',args:[-1,-5],rtn:-6},
-				{name:'fail',args:[-1,-5],rtn:0}
+				{name:'positive (test 1)',args:[1,5],rtn:6},
+				{name:'negative (test 2)',args:[-1,-5],rtn:-6},
+				{name:'fail (test 3)',args:[-1,-5],rtn:0}
 			]
 		}]
 	},
 	{
 		func:()=>0,
+		name:'return 0 (test 4)',
 		rtn:0
-	});//opts:{hidePassed:false,parallel:false,shuffle:false}
+	});
 };
 </script>
