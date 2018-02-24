@@ -5,10 +5,8 @@ onload=function()
 {
 	'use strict';
 	var sum=(a,b)=>a+b;
-	console.log(cherub({hidePassed:false}));
 	cherub.run(
 	{
-		assert:(a,b)=>a===b,
 		name:'math',
 		tests:
 		[{

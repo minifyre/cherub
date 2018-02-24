@@ -19,15 +19,10 @@
 			config=Object.assign(config,opts);
 			return cherub;
 		},
-		assertions=
-		{
-			equal:(actual,expected)=>actual===expected,
-			stringify:(...args)=>assertions.equal(...args.map(JSON.stringify))
-		},
 		next=args=>args,
 		defaults=
 		{
-			assert:assertions.stringify,
+			assert:(actual,expected)=>JSON.stringify(actual)===JSON.stringify(expected),
 			cleanup:next,
 			name:'',
 			rtn:undefined,
@@ -52,11 +47,6 @@
 			tests.push(...cherub.build(subtest,test));
 		});
 		return tests;
-	};	
-	cherub.reportTime=function(time)
-	{
-		var {precision,units}=config;
-		return time.toFixed(precision)+units;
 	};
 	cherub.inherit=function(test,parent)
 	{
@@ -68,7 +58,23 @@
 		test.name=(parent.name+'/'+test.name).replace(/^\//,'');//inherit parent's base name
 		return test;
 	};
+	cherub.json2msg=function(json,show=false)
+	{
+		var {err,name,rtn,time}=json,
+			{hidePassed,output}=config,
+			failed=json.hasOwnProperty('err'),
+			type=failed?'failed':'passed',
+			msg=name+' ('+cherub.reportTime(time)+') ';
+		msg=config[type]+': '+msg;
+		msg=failed?msg+' '+err+'!='+rtn:msg;
+		(failed||!hidePassed||show)?output(msg+'\n'):'';
+	};
 	cherub.num2percent=num=>((num*100).toFixed(2)).replace(/\.00|0$/,'')+'%';
+	cherub.reportTime=function(time)
+	{
+		var {precision,units}=config;
+		return time.toFixed(precision)+units;
+	};
 	cherub.run=function(test)///use rest parameters
 	{
 		var {build,json2msg,shuffle}=cherub,
@@ -107,17 +113,6 @@
 				name=passed+'/'+total+' ('+percentPassed+')';
 			json2msg({name,time},true);
 		});
-	};
-	cherub.json2msg=function(json,show=false)
-	{
-		var {err,name,rtn,time}=json,
-			{hidePassed,output}=config,
-			failed=json.hasOwnProperty('err'),
-			type=failed?'failed':'passed',
-			msg=name+' ('+cherub.reportTime(time)+') ';
-		msg=config[type]+': '+msg;
-		msg=failed?msg+' '+err+'!='+rtn:msg;
-		(failed||!hidePassed||show)?output(msg+'\n'):'';
 	};
 	cherub.shuffle=function(old)
 	{
