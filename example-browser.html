@@ -1,30 +1,34 @@
 <!Doctype html>
-<script src="cherub.js"></script>
-<script>
+<script type=module>
+import {cherub} from './cherub.js';
 onload=function()
 {
 	'use strict';
-	var sum=(a,b)=>a+b;
-	cherub({hidePassed:false})
-	.run(
-	{
-		name:'math',
-		tests:
-		[{
-			name:'sum',
-			func:sum,
+	var sum=(a,b)=>a+b,
+		tests=[{
+			name:'math',
 			tests:
-			[
-				{name:'positive (test 1)',args:[1,5],rtn:6},
-				{name:'negative (test 2)',args:[-1,-5],rtn:-6},
-				{name:'fail (test 3)',args:[-1,-5],rtn:0}
-			]
-		}]
-	},
+			[{
+				name:'sum',
+				func:sum,
+				tests:
+				[
+					{name:'positive (test 1)',args:[1,5],rtn:6},
+					{name:'negative (test 2)',args:[-1,-5],rtn:-6},
+					{name:'fail (test 3)',args:[-1,-5],rtn:0}
+				]
+			}]
+		},
+		{
+			func:()=>0,
+			name:'return 0 (test 4)',
+			rtn:0
+		}];
+	cherub({hidePassed:false,parallel:false}).run(...tests)
+	.then(function()
 	{
-		func:()=>0,
-		name:'return 0 (test 4)',
-		rtn:0
+		console.log('\n');
+		cherub().run(...tests);
 	});
 };
 </script>
