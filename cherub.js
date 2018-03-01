@@ -42,14 +42,6 @@ function cherub(opts)
 		return output.runTests(tests,parallel)
 		.then(results=>output.results(results,start));
 	};
-	logic.assign=function(obj,src)
-	{
-		return Object.keys(src).reduce(function(obj,prop)
-		{
-			!obj.hasOwnProperty(prop)?obj[prop]=src[prop]:'';
-			return obj;
-		},obj);
-	};
 	logic.buildTest=function(test,inherits=cache.default.inheritance)
 	{
 		test=logic.inherit(test,inherits);
@@ -69,8 +61,7 @@ function cherub(opts)
 		var {assert,cleanup,func,rtn,setup}=parent,
 			parentProps={assert,cleanup,func,rtn,setup},
 			minProps={name:'',tests:[]};
-		//don't affect the passed object's properties
-		test=[test,minProps,parentProps].reduce((obj,src)=>logic.assign(obj,src),{});
+		test=Object.assign({},minProps,parentProps,test);//don't affect orignal test
 		test.name=(parent.name+'/'+test.name).replace(/^\//,'');//prepend parent's name
 		return test;
 	};
