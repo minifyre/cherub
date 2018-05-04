@@ -142,4 +142,22 @@ function cherub(opts)
 	};
 	return {run:input.run};
 }
+cherub.test=function()
+{
+	const
+	obj={},
+	data={},
+	propsMulti='args,tests'.split(','),
+	propsSingle='assert,cleanup,func,name,rtn,setup'.split(',');
+	propsSingle.forEach(function(prop)
+	{
+		obj[prop]=val=>((data[prop]=val),obj);
+	});
+	propsMulti.forEach(function(prop)
+	{
+		obj[prop]=(...vals)=>((data[prop]=vals),obj);
+	});
+	obj.norm=()=>data;
+	return obj;
+};
 export {cherub};
