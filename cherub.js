@@ -142,10 +142,10 @@ function cherub(opts)
 	};
 	return {run:input.run};
 }
-cherub.test=function()
+cherub.test=function(name='')
 {
 	const
-	obj={},
+	obj={name},
 	data={},
 	propsMulti='args,tests'.split(','),
 	propsSingle='assert,cleanup,func,name,rtn,setup'.split(',');
