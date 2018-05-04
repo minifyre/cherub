@@ -44,6 +44,8 @@ function cherub(opts)
 	};
 	logic.buildTest=function(test,inherits=cache.default.inheritance)
 	{
+		test=test.norm?test.norm():test;
+		inherits=inherits.norm?inherits.norm():inherits;
 		test=logic.inherit(test,inherits);
 		var {tests}=test,
 			isNotContainer=!tests.length&&test.func;
@@ -145,8 +147,8 @@ function cherub(opts)
 cherub.test=function(name='')
 {
 	const
-	obj={name},
-	data={},
+	obj={},
+	data={name},
 	propsMulti='args,tests'.split(','),
 	propsSingle='assert,cleanup,func,name,rtn,setup'.split(',');
 	propsSingle.forEach(function(prop)
