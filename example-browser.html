@@ -15,10 +15,9 @@ onload=function()
 			func:sum,
 			tests:
 			[
-				test('positive (test 1)').args(1,5).rtn(6).norm(),
-				//{name:'positive (test 1)',args:[1,5],rtn:6},
-				{name:'negative (test 2)',args:[-1,-5],rtn:-6},
-				{name:'fail (test 3)',args:[-1,-5],rtn:0}
+				test('positive (test 1)').args(1,5).rtn(6),
+				test('negative (test 2)').args(-1,-5).rtn(-6),
+				test('fail (test 3)').args(-1,-5).rtn(0)
 			]
 		}]
 	},
