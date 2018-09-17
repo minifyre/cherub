@@ -1,24 +1,13 @@
 <!Doctype html>
 <script type=module>
-'use strict';
-import {cherub} from './cherub.js';
-onload=function()
-{
-	const
-	sum=(a,b)=>a+b,
-	{test}=cherub,
-	tests=test('math').tests//using chaining syntax
-	(
-		test('sum').func(sum).tests
-		(
-			test('positive (test 1)').args(1,5).rtn(6),
-			test('negative (test 2)').args(-1,-5).rtn(-6),
-			test('fail (test 3)').args(-1,-5).rtn(0)
-		),
-		test('return 0 (test 4)').func(()=>0).rtn(0)
-	);
-	cherub({hidePassed:false,parallel:false}).run(tests)
-	.then(()=>console.log('\n'))
-	.then(()=>cherub().run(tests));
-};
+import cherub from './cherub.mjs'
+const sum=(a,b)=>a+b
+cherub(
+[
+	[()=>sum(1,5),6,'sum pos'],
+	[()=>sum(-1,-5),-6,'sum neg'],
+	[()=>undefinedVar,0,'will not crash cherub'],
+	[0,0,'zero']
+],
+{now:()=>performance.now()})
 </script>
