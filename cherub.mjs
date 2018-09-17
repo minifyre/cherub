@@ -52,7 +52,7 @@ cherub.test=async function([actualOrFn,expectedOrFn,optsOrName={}],config)
 {
 	const
 	{is}=cherub,
-	opts=is(optsOrName,'string')?{name:optsOrName}:opts,
+	opts=is(optsOrName,'string')?{name:optsOrName}:optsOrName,
 	{setup,cleanup,name,now,reportTest}=Object.assign({},config,opts),
 	start=now(),
 	result=await Promise.resolve()
