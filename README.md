@@ -31,20 +31,22 @@ Cherub.js is designed to be flexible/lightweight & make writing tests faster/eas
 Supports:
 
 * Async Testing
-* Atomic Testing
-  * to maintaining testing order use `cherub(tests,{shuffle:false})`
+* Atomic Testing (by default)
+  * use `cherub(tests,{shuffle:false})` to maintain testing order
 * Browser & Node.js
 * Different Assertion Libraries
   * defaults to `JSON.stringify(acutal)===JSON.stringify(expected)`
-  * for a different default use `cherub(tests,{assert:customAssertionFn})`
+  * for a different default assertion use `cherub(tests,{assert:customAssertionFn})`
   * for custom assertions on a test-by-test basis:
-    * `[expected,actual,{name:'generic test',assert:customAssertionFn}]` or
-    * `[expectedValue,customAssertionFn,'test name']`
+    * `[expectedValue,customAssertionFn,'test name']` or
+    * `[expected,actual,{name:'generic test',assert:customAssertionFn}]`
 * Concurrent Testing
   * for sequential testing use `cherub(tests,{parallel:false})`
 * Configurable
   * reporting
+    * use `cherub(tests,{reportTest:fn({name,time,passed:bool,error:object})`
+    * use `cherub(tests,{report:fn({tests:[...results],time})})` to alter final results output
   * timing precision
     * default is millisecond accuracy with `Date.now()`
     * for microsecond accuracy use `cherub(tests,{now:()=>performance.now()})`
-      * on node.js (8.5.0+) `import {performance} from './perf_hooks.js'`
+      * on node.js (8.5.0+) add `import {performance} from './perf_hooks.js'` as well
