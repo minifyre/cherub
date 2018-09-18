@@ -40,11 +40,11 @@ Supports:
   * for custom assertions on a test-by-test basis:
     * `[expectedValue,customAssertionFn,'test name']` or
     * `[expected,actual,{name:'generic test',assert:customAssertionFn}]`
-* Concurrent Testing
+* Concurrent Testing (by default)
   * for sequential testing use `cherub(tests,{parallel:false})`
 * Configurable
   * reporting
-    * use `cherub(tests,{reportTest:fn({name,time,passed:bool,error:object})`
+    * use `cherub(tests,{reportTest:fn({name,time,passed:bool,error:object})` for realtime results for each test
     * use `cherub(tests,{report:fn({tests:[...results],time})})` to alter final results output
   * timing precision
     * default is millisecond accuracy with `Date.now()`
