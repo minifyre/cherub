@@ -1,3 +1,4 @@
+//for node 8.5-10 run with `node --experimental-modules tests.node.mjs` (9/2018)
 import {performance} from 'perf_hooks'
 import cherub from './cherub.mjs'
 const
