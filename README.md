@@ -45,4 +45,4 @@ Supports:
   * timing precision
     * default is millisecond accuracy with `Date.now()`
     * for microsecond accuracy use `cherub(tests,{now:()=>performance.now()})`
-      * on node.js (8.5.0+) add `import {performance} from './perf_hooks.js'` as well
+      * on node.js (8.5.0+) add `import {performance} from 'perf_hooks'` as well
