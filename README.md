@@ -21,12 +21,8 @@ Cherub.js is designed to be flexible/lightweight & make writing tests faster/eas
 
     //console output
     "crash test" failed:
-    {name:"crash test",time:0.7...,passed:false,error:object}
-    //passed tests are not logged by default
-    //(can be changed by passing {reportTest:someFunction} to cherub)
+    {name:"crash test",time:0.7,passed:false,error:object}
     3/4 (75%) tests passed in 4.7ms
-    //final output can be configured by passing {report:someFunction} to cherub
-    //report function takes an object {tests:[],time}
 
 Supports:
 
