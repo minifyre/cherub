@@ -28,7 +28,7 @@ cherub.config=
 					.map(x=>x.toFixed(4).replace(/0+$/,'').replace(/\.$/,''))
 		console.log(`${passed}/${total} (${percent}%) tests passed in ${ms}ms`)
 	},
-	reportTest:console.log,
+	reportTest:x=>!x.passed&&console.error(`"${x.name}" failed:`,x),
 	shuffle:true,
 	setup:x=>x
 }
