@@ -24,11 +24,9 @@ cherub.config=
 		const
 		passed=tests.reduce((sum,x)=>sum+x.passed,0),
 		total=tests.length,
-		percent=(passed/total*100)
-				.toFixed(4)
-				.replace(/0+$/,'')
-				.replace(/\.$/,'')
-		console.log(`${passed}/${total} (${percent}%) passed in ${time.toFixed(4)}ms`)
+		[percent,ms]=[(passed/total*100),time]
+					.map(x=>x.toFixed(4).replace(/0+$/,'').replace(/\.$/,''))
+		console.log(`${passed}/${total} (${percent}%) tests passed in ${ms}ms`)
 	},
 	reportTest:console.log,
 	shuffle:true,
