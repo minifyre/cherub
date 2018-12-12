@@ -58,7 +58,7 @@ cherub.test=async function([actualOrFn,expectedOrFn,optsOrName={}],config)
 	.then(async function()
 	{
 		const
-		actual=await is(actualOrFn,'function')?actualOrFn():actualOrFn,
+		actual=is(actualOrFn,'function')?await actualOrFn():actualOrFn,
 		[assert,...args]=	is(expectedOrFn,'function')?[expectedOrFn,actual]:
 							[config.assert,actual,expectedOrFn]
 		return await assert(...args)
