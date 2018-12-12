@@ -22,7 +22,7 @@ cherub.config=
 	report:function({tests,time})
 	{
 		const
-		passed=tests.reduce((sum,x)=>sum+x.passed,0),
+		passed=tests.reduce((sum,x)=>sum+(x.passed?1:0),0),
 		total=tests.length,
 		[percent,ms]=[(passed/total*100),time]
 					.map(x=>x.toFixed(4).replace(/0+$/,'').replace(/\.$/,''))
