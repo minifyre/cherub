@@ -1,6 +1,6 @@
-<!Doctype html>
-<script type=module>
-import cherub from './cherub.mjs'
+import {performance} from 'perf_hooks'
+import cherub from './index.js'
+
 const
 sum=(a,b)=>a+b,
 tests=
@@ -10,6 +10,8 @@ tests=
 		[()=>sum(-1,-2),-3,{name:'sum/negative'}],//options object
 		[()=>undefinedVarible,0,'crash test'],//errors will not crash cherub
 ],
-opts={now:()=>performance.now()}
+opts={now:()=>performance.now()},
+customOpts={parallel:false,shuffle:false,reportTest:x=>x}
+//todo: add something here to show the expected output was 75% passed
 cherub(tests,opts)
-</script>
+cherub(tests,{...customOpts,...opts})
